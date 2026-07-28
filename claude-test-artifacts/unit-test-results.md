@@ -12,18 +12,18 @@
 
 | Metric | Value |
 |---|---|
-| Total tests | 24 |
-| Passed | 24 |
+| Total tests | 27 |
+| Passed | 27 |
 | Failed | 0 |
 | Skipped | 0 |
-| Duration | ~110 ms |
+| Duration | ~108 ms |
 | Result | **PASS** |
 
 ---
 
 ## Test Suites
 
-### 1. GET /api/tasks — 3 tests
+### 1. GET /api/tasks — 4 tests
 
 Tests that the task listing endpoint returns correct data and applies the legacy normalization introduced in T1.
 
@@ -32,10 +32,11 @@ Tests that the task listing endpoint returns correct data and applies the legacy
 | 1.1 | Returns empty array when no tasks exist | PASS | Baseline — no state leak between tests |
 | 1.2 | Returns all tasks | PASS | Confirms task data is read and returned correctly |
 | 1.3 | Normalizes legacy tasks that lack `startedAt` — injects `null` | PASS | Validates design decision D5: `readDb()` coerces `undefined` → `null` for backwards compatibility |
+| 1.4 | Returns empty array when db.json contains invalid JSON | PASS | Covers `readDb()` silent-fallback path for malformed JSON (T2) |
 
 ---
 
-### 2. POST /api/tasks — 7 tests
+### 2. POST /api/tasks — 9 tests
 
 Tests task creation: field defaults, validation, persistence.
 
@@ -48,6 +49,8 @@ Tests task creation: field defaults, validation, persistence.
 | 2.5 | Returns 400 when title is only whitespace | PASS | Trim + empty check combined |
 | 2.6 | Returns 400 when title field is missing | PASS | Missing body field handled gracefully |
 | 2.7 | Returns 400 when title is not a string | PASS | Type guard: `typeof title === "string"` check works |
+| 2.8 | Returns 400 when title exceeds 120 characters | PASS | Server-side length cap mirrors HTML `maxlength="120"` (S1) |
+| 2.9 | Accepts a title of exactly 120 characters | PASS | Boundary value — confirms the 120-char limit is inclusive |
 
 ---
 
@@ -105,12 +108,13 @@ Tests hit the real Express routes and perform real `fs.writeFileSync` / `fs.read
 | Impl plan task | Covered by suite(s) |
 |---|---|
 | T1 — `readDb()` normalization | Suite 1, test 1.3 |
-| T2 — `POST` `startedAt:null` + try/catch | Suite 2, tests 2.1, 2.3 |
+| T2 — `POST` `startedAt:null` + try/catch + malformed JSON fallback | Suite 1 test 1.4, Suite 2 tests 2.1, 2.3 |
 | T3 — `PATCH /inprogress` new endpoint | Suite 3, all 6 tests |
 | T4 — `PATCH /done` enforce source + try/catch | Suite 4, all 6 tests |
 | D1 — `inprogress` rejects non-`todo` source | Suite 3, tests 3.3, 3.4 |
 | D2 — `done` rejects non-`inprogress` source | Suite 4, test 4.3 |
 | D5 — legacy `startedAt` normalization | Suite 1, test 1.3 |
+| S1 — server-side 120-char title length cap | Suite 2, tests 2.8, 2.9 |
 | Full lifecycle correctness | Suite 5, both tests |
 
 ### Not Covered (out of scope for unit tests)
@@ -128,7 +132,7 @@ npm test
 
 Expected output:
 ```
-ℹ tests 24
-ℹ pass  24
+ℹ tests 27
+ℹ pass  27
 ℹ fail  0
 ```
