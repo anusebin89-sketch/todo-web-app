@@ -127,6 +127,24 @@ h1 {
   cursor: pointer;
 }
 
+.mark-inprogress {
+  border: 1px solid #f0a500;
+  color: #a36b00;
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.inprogress-badge {
+  font-size: 13px;
+  color: #a36b00;
+  background: #fff8e6;
+  border: 1px solid #f0a500;
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
 .done-badge {
   font-size: 13px;
   color: var(--text-soft);
