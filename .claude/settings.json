@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/Anu_Shaji/Capstone/claude/todo-application/.claude/hooks/gate-pr-creator.sh",
+            "statusMessage": "Checking QA approval before pr-creator..."
+          }
+        ]
+      }
+    ]
+  }
+}
